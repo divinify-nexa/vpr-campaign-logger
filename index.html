@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPR Campaign Logger</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent: #c8a96e;
+    --accent2: #4a9eff;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --success: #3ecf8e;
+    --error: #ff4d6d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .header {
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .section {
+    margin-bottom: 36px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input, select, textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.1);
+  }
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .checkbox-row label {
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    margin: 0;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  select option { background: var(--surface); }
+
+  .ab-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 12px;
+  }
+
+  .ab-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .variant-block {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .variant-block:last-child { margin-bottom: 0; }
+
+  .variant-tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 16px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--success);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 6px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+  }
+
+  .toast.error { background: var(--error); color: #fff; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .hidden { display: none; }
+
+  @media (max-width: 520px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">VPR · Robly Intelligence</div>
+    <h1>Campaign <span>Logger</span></h1>
+    <div class="subtitle">Log campaign stats after every send → agent gets smarter</div>
+  </div>
+
+  <form id="logForm">
+
+    <!-- CAMPAIGN INFO -->
+    <div class="section">
+      <div class="section-label">Campaign Info</div>
+      <div class="grid">
+        <div class="field">
+          <label>Campaign Name *</label>
+          <input type="text" id="campaign_name" placeholder="e.g. VPR Engaged — Commission Pitch" required>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Send Date *</label>
+            <input type="datetime-local" id="sent_at" required>
+          </div>
+          <div class="field">
+            <label>List Size *</label>
+            <input type="number" id="list_size" placeholder="4242" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERY -->
+    <div class="section">
+      <div class="section-label">Delivery</div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Total Sent</label>
+          <input type="number" id="total_sent" placeholder="4242">
+        </div>
+        <div class="field">
+          <label>Emails Delivered</label>
+          <input type="number" id="emails_delivered" placeholder="4211">
+        </div>
+      </div>
+    </div>
+
+    <!-- OPENS -->
+    <div class="section">
+      <div class="section-label">Opens</div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Open Rate %</label>
+          <input type="number" step="0.01" id="open_rate_pct" placeholder="18.40">
+        </div>
+        <div class="field">
+          <label>Total Opens</label>
+          <input type="number" id="total_opens" placeholder="968">
+        </div>
+        <div class="field">
+          <label>Unique Opens</label>
+          <input type="number" id="unique_opens" placeholder="775">
+        </div>
+      </div>
+    </div>
+
+    <!-- CLICKS -->
+    <div class="section">
+      <div class="section-label">Clicks</div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Click Rate %</label>
+          <input type="number" step="0.01" id="click_rate_pct" placeholder="16.65">
+        </div>
+        <div class="field">
+          <label>Total Clicks</label>
+          <input type="number" id="total_clicks" placeholder="519">
+        </div>
+        <div class="field">
+          <label>Unique Clicks</label>
+          <input type="number" id="unique_clicks" placeholder="129">
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER METRICS -->
+    <div class="section">
+      <div class="section-label">Other Metrics</div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Opt-Outs</label>
+          <input type="number" id="total_opt_outs" placeholder="3">
+        </div>
+        <div class="field">
+          <label>Spam Reports</label>
+          <input type="number" id="total_spam" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Hard Bounces</label>
+          <input type="number" id="hard_bounces" placeholder="2">
+        </div>
+      </div>
+    </div>
+
+    <!-- FLAGS -->
+    <div class="section">
+      <div class="section-label">Settings</div>
+      <div class="grid grid-3">
+        <div class="checkbox-row">
+          <input type="checkbox" id="is_ab_test">
+          <label for="is_ab_test">A/B Test</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="opengen_enabled">
+          <label for="opengen_enabled">OpenGen</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="robly_ai_enabled">
+          <label for="robly_ai_enabled">Robly AI</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- A/B VARIANTS -->
+    <div class="section" id="abSection" style="display:none">
+      <div class="section-label">A/B Variants</div>
+      <div class="ab-section">
+        <div class="ab-title">Variant Performance</div>
+        <div class="variant-block">
+          <div class="variant-tag">Version A</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Subject Line</label>
+              <input type="text" id="a_subject" placeholder="Subject line A">
+            </div>
+            <div class="field">
+              <label>Template Type</label>
+              <select id="a_template">
+                <option value="Plain text with plain CTA link">Plain text + CTA link</option>
+                <option value="Graphic template with CTA button">Graphic + CTA button</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Open Rate %</label>
+              <input type="number" step="0.01" id="a_open_rate" placeholder="20.5">
+            </div>
+            <div class="field">
+              <label>Click Rate %</label>
+              <input type="number" step="0.01" id="a_click_rate" placeholder="12.3">
+            </div>
+          </div>
+        </div>
+        <div class="variant-block">
+          <div class="variant-tag">Version B</div>
+          <div class="grid grid-2">
+            <div class="field">
+              <label>Subject Line</label>
+              <input type="text" id="b_subject" placeholder="Subject line B">
+            </div>
+            <div class="field">
+              <label>Template Type</label>
+              <select id="b_template">
+                <option value="Graphic template with CTA button">Graphic + CTA button</option>
+                <option value="Plain text with plain CTA link">Plain text + CTA link</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Open Rate %</label>
+              <input type="number" step="0.01" id="b_open_rate" placeholder="15.2">
+            </div>
+            <div class="field">
+              <label>Click Rate %</label>
+              <input type="number" step="0.01" id="b_click_rate" placeholder="18.7">
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Winner</label>
+          <select id="ab_winner">
+            <option value="">Too early to tell</option>
+            <option value="A">Version A</option>
+            <option value="B">Version B</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="section">
+      <div class="section-label">Notes</div>
+      <div class="field">
+        <label>Notes / Observations</label>
+        <textarea id="notes" placeholder="e.g. Sent to engaged list only. Commission angle. Higher opt-outs than usual."></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">Log Campaign →</button>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const WEBHOOK_URL = 'https://n8n-production-f881.up.railway.app/webhook/log-campaign';
+
+  // Show/hide A/B section
+  document.getElementById('is_ab_test').addEventListener('change', function() {
+    document.getElementById('abSection').style.display = this.checked ? 'block' : 'none';
+  });
+
+  // Set default datetime to now
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('sent_at').value = now.toISOString().slice(0, 16);
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  document.getElementById('logForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Logging...';
+
+    const isAB = document.getElementById('is_ab_test').checked;
+
+    const payload = {
+      campaign_name: document.getElementById('campaign_name').value,
+      sent_at: document.getElementById('sent_at').value,
+      list_size: parseInt(document.getElementById('list_size').value) || null,
+      total_sent: parseInt(document.getElementById('total_sent').value) || null,
+      emails_delivered: parseInt(document.getElementById('emails_delivered').value) || null,
+      open_rate_pct: parseFloat(document.getElementById('open_rate_pct').value) || null,
+      total_opens: parseInt(document.getElementById('total_opens').value) || null,
+      unique_opens: parseInt(document.getElementById('unique_opens').value) || null,
+      click_rate_pct: parseFloat(document.getElementById('click_rate_pct').value) || null,
+      total_clicks: parseInt(document.getElementById('total_clicks').value) || null,
+      unique_clicks: parseInt(document.getElementById('unique_clicks').value) || null,
+      total_opt_outs: parseInt(document.getElementById('total_opt_outs').value) || null,
+      total_spam: parseInt(document.getElementById('total_spam').value) || null,
+      hard_bounces: parseInt(document.getElementById('hard_bounces').value) || null,
+      is_ab_test: isAB,
+      opengen_enabled: document.getElementById('opengen_enabled').checked,
+      robly_ai_enabled: document.getElementById('robly_ai_enabled').checked,
+      notes: document.getElementById('notes').value || null,
+      ab_variants: isAB ? [
+        {
+          variant_label: 'A',
+          subject_line: document.getElementById('a_subject').value,
+          template_type: document.getElementById('a_template').value,
+          open_rate_pct: parseFloat(document.getElementById('a_open_rate').value) || null,
+          click_rate_pct: parseFloat(document.getElementById('a_click_rate').value) || null,
+          is_winner: document.getElementById('ab_winner').value === 'A'
+        },
+        {
+          variant_label: 'B',
+          subject_line: document.getElementById('b_subject').value,
+          template_type: document.getElementById('b_template').value,
+          open_rate_pct: parseFloat(document.getElementById('b_open_rate').value) || null,
+          click_rate_pct: parseFloat(document.getElementById('b_click_rate').value) || null,
+          is_winner: document.getElementById('ab_winner').value === 'B'
+        }
+      ] : []
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        showToast('✓ Campaign logged successfully');
+        document.getElementById('logForm').reset();
+        document.getElementById('abSection').style.display = 'none';
+        const now2 = new Date();
+        now2.setMinutes(now2.getMinutes() - now2.getTimezoneOffset());
+        document.getElementById('sent_at').value = now2.toISOString().slice(0, 16);
+      } else {
+        showToast('Error — check n8n webhook', true);
+      }
+    } catch(err) {
+      showToast('Network error — try again', true);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Log Campaign →';
+  });
+</script>
+</body>
+</html>
